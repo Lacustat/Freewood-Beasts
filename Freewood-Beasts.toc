@@ -2,7 +2,7 @@
 ## Title: Freewood |cffc89b3cBeasts|r
 ## Notes: Archive of wild beasts: where they live, what they eat, what taming teaches. Learns while you play, with export and import.
 ## Notes-deDE: Archiv wilder Tiere: wo sie leben, was sie fressen, was das Zähmen lehrt. Lernt beim Spielen, mit Export und Import.
-## Author: Dominik
+## Author: Lacustat
 ## Version: 0.5.7
 ## Dependencies: Freewood-Core, Freewood-Pet
 ## OptionalDeps: Freewood-BeastsData
