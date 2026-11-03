@@ -1,7 +1,7 @@
 # Freewood-Forever-Beasts
 
 **Deutsch & English · German & English.** Autor · Author: Lacustat. Version 0.5.7 · Interface 16001 (World of Warcraft: Forever).
-![Beasts].(https://github.com/Lacustat/Freewood-OctoWoW-Bilder/blob/main/beasts.jpg)
+![Beasts](https://github.com/Lacustat/Freewood-OctoWoW-Bilder/blob/main/beasts.jpg)
 ## Inhalt · Contents
 - [Deutsch](#deutsch)
 - [English](#english)
