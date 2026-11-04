@@ -7,7 +7,7 @@
 ## Dependencies: Freewood-Core, Freewood-Pet
 ## OptionalDeps: Freewood-BeastsData
 ## IconTexture: Interface\Icons\Ability_Hunter_BeastTaming
-
+## X-Wago-ID: j6jApgNR
 Locales.lua
 Beasts.lua
 Sync.lua
