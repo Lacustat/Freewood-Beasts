@@ -1,7 +1,7 @@
-# Freewood-Forever-Beasts
+# Freewood-Beasts
 
-**Deutsch & English · German & English.** Autor · Author: Lacustat. Version 0.5.7 · Interface 16001 (World of Warcraft: Forever).
-![Beasts](https://github.com/Lacustat/Freewood-OctoWoW-Bilder/blob/main/beasts.jpg)
+**Deutsch & English · German & English.** Autor · Author: Lacustat. Version 0.5.8 · Interface 16001 (World of Warcraft: Forever).
+
 ## Inhalt · Contents
 - [Deutsch](#deutsch)
 - [English](#english)
@@ -14,7 +14,7 @@ Das Archiv wilder Tiere: wo sie leben, was sie fressen, was das Zähmen lehrt. E
 ### Funktionen
 - Ein Tier anvisieren: „Gesehen“ mit Fundort; Wildtierkunde: „Erforscht“; gezähmt: „Gezähmt“ mit den Fähigkeiten, damit Jäger wissen, wo sie welchen Rang für ihren Begleiter finden.
 - Suche und Filter (Familie, Gebiet, Status), Kartenanzeige der Fundorte.
-- Export und Import; Austausch zwischen Spielern, Daten anderer Spieler überschreiben nie deine eigenen.
+- Export und Import; Austausch über Gilde, Gruppe und Schlachtzug, Daten anderer Spieler überschreiben nie deine eigenen.
 - Mit dem Brett lassen sich Wildtierdaten per Brief weitergeben (verschlüsselt, aber importierbar).
 
 ### Abhängigkeiten
@@ -44,7 +44,7 @@ The archive of wild beasts: where they live, what they eat, what taming teaches.
 ### Features
 - Target a beast: “seen” with location; beast lore: “researched”; tamed: “tamed” with the abilities, so hunters know where to find which rank for their companion.
 - Search and filters (family, zone, status), map display of locations.
-- Export and import; exchange between players, other players' data never overwrites your own.
+- Export and import; exchange via guild, party and raid, other players' data never overwrites your own.
 - With Brett, beast data can be passed on by letter (encoded, but importable).
 
 ### Dependencies

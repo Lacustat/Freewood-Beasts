@@ -71,6 +71,11 @@ end
 local function Settings()
     local s = Beasts.db.settings
     s.share = s.share or { guild = false, party = false, raid = false, global = false }
+    -- Forever erlaubt Addons im eigenen Kanal kein Senden: einmalig ausschalten (der Nutzer kann ihn wieder waehlen)
+    if not s.share.globalReset then
+        s.share.globalReset = true
+        s.share.global = false
+    end
     return s.share
 end
 
@@ -997,6 +1002,12 @@ end
 
 function Sync:JoinGlobal()
     if not Settings().global then
+        -- Kanal nicht gewuenscht: ein frueher beigetretener wird verlassen
+        local cur = GetChannelName and GetChannelName(GLOBAL_CHANNEL)
+        if type(cur) == "number" and cur > 0 then
+            self:LeaveGlobal()
+        end
+        state.status.global = "off"
         return
     end
     local id = GetChannelName and GetChannelName(GLOBAL_CHANNEL)
