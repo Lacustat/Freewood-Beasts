@@ -286,6 +286,7 @@ local function Build(parent)
 end
 
 UI:RegisterSettingsSection("beasts-share", {
+    category = "modules",
     order = 100,
     height = 360,
     build = Build,
