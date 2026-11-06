@@ -3,7 +3,7 @@
 ## Notes: Archive of wild beasts: where they live, what they eat, what taming teaches. Learns while you play, with export and import.
 ## Notes-deDE: Archiv wilder Tiere: wo sie leben, was sie fressen, was das Zähmen lehrt. Lernt beim Spielen, mit Export und Import.
 ## Author: Lacustat
-## Version: 0.6.0
+## Version: 0.6.1
 ## Dependencies: Freewood-Core, Freewood-Pet
 ## OptionalDeps: Freewood-BeastsData
 ## IconTexture: Interface\Icons\Ability_Hunter_BeastTaming
@@ -14,3 +14,4 @@ Sync.lua
 MapOverlay.lua
 BeastsUI.lua
 SyncUI.lua
+Bindings.lua
