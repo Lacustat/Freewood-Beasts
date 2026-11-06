@@ -591,7 +591,7 @@ local function SeedZone(seed)
     if not seed then
         return nil
     end
-    return Beasts.MapName(seed.m) or Beasts.AreaName(seed.a)
+    return Beasts.MapName(seed.m) or Beasts.AreaName(seed.a) or seed.z
 end
 
 function Beasts:FamilyText(fid, fallback)
@@ -674,38 +674,164 @@ function Beasts.SpellInfo(spellID)
     return name, rank or 0
 end
 
--- Faehigkeiten, die ein Tier beim Zaehmen lehrt (Startdaten) bzw. die sein Begleiter hat:
--- { [name] = { [rang] = true } } plus Hoechstrang; im Eintrag zwischengespeichert, sobald alle Namen bekannt sind
+------------------------------------------------------------------------
+-- Faehigkeiten: sprachunabhaengige Schluessel (Petopia-Daten in BeastsData)
+-- Schluessel: Petopia-Name ("bite") oder "n:<Name>" fuer Eigenes, das nicht zuordenbar ist
+------------------------------------------------------------------------
+
+local abilData -- { byKey, order, spellKey, keySpells, npc = { [id] = { [key] = { [rank]=true } } }, nameKey }
+
+local function AbilData()
+    if abilData then
+        return abilData
+    end
+    local d = { byKey = {}, order = {}, spellKey = {}, keySpells = {}, npc = {}, nameKey = {} }
+    local src = _G.FreewoodBeastsAbilities
+    if src and type(src.list) == "table" then
+        for _, a in ipairs(src.list) do
+            d.byKey[a.k] = a
+            d.order[#d.order + 1] = a.k
+            d.nameKey[string.lower(a.n)] = a.k
+            for _, r in ipairs(a.r) do
+                for _, id in ipairs(r[5] or {}) do
+                    local per = d.npc[id]
+                    if not per then
+                        per = {}
+                        d.npc[id] = per
+                    end
+                    per[a.k] = per[a.k] or {}
+                    per[a.k][r[1]] = true
+                end
+            end
+        end
+        for spellID, v in pairs(src.spell or {}) do
+            d.spellKey[spellID] = v
+            local l = d.keySpells[v[1]]
+            if not l then
+                l = {}
+                d.keySpells[v[1]] = l
+            end
+            l[v[2]] = spellID
+        end
+    end
+    abilData = d
+    return d
+end
+
+-- Schluessel zu einem (lokalisierten oder englischen) Namen
+local localNameKey
+function Beasts.KeyForName(name)
+    if not name or name == "" then
+        return nil
+    end
+    local d = AbilData()
+    local low = string.lower(name)
+    if d.nameKey[low] then
+        return d.nameKey[low]
+    end
+    if not localNameKey then
+        localNameKey = {}
+        for key, spells in pairs(d.keySpells) do
+            for _, spellID in pairs(spells) do
+                local n = Beasts.SpellInfo(spellID)
+                if n then
+                    localNameKey[string.lower(n)] = key
+                    break
+                end
+            end
+        end
+    end
+    return localNameKey[low] or ("n:" .. name)
+end
+
+-- Anzeigename: aus dem Spiel (lokalisiert), sonst englisch
+local displayNames = {}
+function Beasts.AbilityName(key)
+    if not key then
+        return ""
+    end
+    if string.sub(key, 1, 2) == "n:" then
+        return string.sub(key, 3)
+    end
+    local cached = displayNames[key]
+    if cached then
+        return cached
+    end
+    local d = AbilData()
+    for _, spellID in pairs(d.keySpells[key] or {}) do
+        local n = Beasts.SpellInfo(spellID)
+        if n then
+            displayNames[key] = n
+            return n
+        end
+    end
+    return d.byKey[key] and d.byKey[key].n or key
+end
+
+-- Spell-ID zu Schluessel und Rang, falls bekannt
+function Beasts.AbilitySpellID(key, rank)
+    local l = AbilData().keySpells[key]
+    return l and l[rank] or nil
+end
+
+-- Angaben zu einem Rang: { rank, lvl, tp, src } oder nil
+function Beasts.AbilityRankInfo(key, rank)
+    local a = AbilData().byKey[key]
+    if not a then
+        return nil
+    end
+    for _, r in ipairs(a.r) do
+        if r[1] == rank then
+            return { rank = r[1], lvl = r[2], tp = r[3], src = r[4] }
+        end
+    end
+    return nil
+end
+
+-- Faehigkeiten, die ein Tier beim Zaehmen lehrt bzw. die sein Begleiter hat:
+-- { [schluessel] = { ranks = { [rang] = true }, max = hoechster Rang } }
 function Beasts:Abilities(s)
     if s.abil then
         return s.abil
     end
-    local map, complete = {}, true
-    local function add(name, rank)
-        local e = map[name]
+    local d = AbilData()
+    local map = {}
+    local function add(key, rank)
+        local e = map[key]
         if not e then
             e = { ranks = {}, max = 0 }
-            map[name] = e
+            map[key] = e
         end
         e.ranks[rank] = true
         if rank > e.max then
             e.max = rank
         end
     end
+    for key, ranks in pairs(d.npc[s.id] or {}) do
+        for rank in pairs(ranks) do
+            add(key, rank)
+        end
+    end
+    local complete = true
     if s.seed and s.seed.t then
         for _, spellID in ipairs(s.seed.t) do
-            local name, rank = Beasts.SpellInfo(spellID)
-            if name then
-                add(name, rank)
+            local known = d.spellKey[spellID]
+            if known then
+                add(known[1], known[2])
             else
-                complete = false
+                local name, rank = Beasts.SpellInfo(spellID)
+                if name then
+                    add(Beasts.KeyForName(name), rank)
+                else
+                    complete = false
+                end
             end
         end
     end
     local pa = (s.own and s.own.petAbilities) or (s.imp and s.imp.petAbilities)
     for _, a in ipairs(pa or {}) do
         if a.name then
-            add(a.name, tonumber(a.rank) or 0)
+            add(Beasts.KeyForName(a.name), tonumber(a.rank) or 0)
         end
     end
     if complete then
@@ -714,7 +840,7 @@ function Beasts:Abilities(s)
     return map
 end
 
--- filter: text, fid, zone, status, ability (Name), rank (Zahl), rankMin (true = "ab diesem Rang")
+-- filter: text, fid, zone, status, ability (Schluessel), rank (Zahl), rankMin (true = "ab diesem Rang")
 -- Zweiter Rueckgabewert: Zahl der Tiere ohne Faehigkeitsdaten (nur bei Faehigkeitsfilter)
 function Beasts:Filtered(filter)
     local out = {}
@@ -759,36 +885,97 @@ function Beasts:Filtered(filter)
     return out, missing
 end
 
--- Alle Faehigkeiten (Namen, sortiert) und die Raenge einer Faehigkeit
+-- Alle Faehigkeiten als { key, text }, nach Anzeigename sortiert: alle aus den Startdaten
+-- (auch ohne bekanntes Tier) plus alles, was an Tieren gefunden wurde
 function Beasts:AbilityChoices()
-    local names, seen = {}, {}
+    local d = AbilData()
+    local keys, seen = {}, {}
+    for _, k in ipairs(d.order) do
+        -- reine Trainer-Faehigkeiten (alle Raenge "L") lehrt kein Tier: nur anzeigen, wenn doch eins gefunden wird
+        local byTaming = false
+        for _, r in ipairs(d.byKey[k].r) do
+            if r[4] ~= "L" then
+                byTaming = true
+            end
+        end
+        if byTaming then
+            seen[k] = true
+            keys[#keys + 1] = k
+        end
+    end
     for _, s in ipairs(self:Index()) do
-        for name in pairs(self:Abilities(s)) do
-            if not seen[name] then
-                seen[name] = true
-                names[#names + 1] = name
+        for k in pairs(self:Abilities(s)) do
+            if not seen[k] then
+                seen[k] = true
+                keys[#keys + 1] = k
             end
         end
     end
-    table.sort(names)
-    return names
+    local list = {}
+    for _, k in ipairs(keys) do
+        list[#list + 1] = { key = k, text = Beasts.AbilityName(k) }
+    end
+    table.sort(list, function(a, b)
+        return a.text < b.text
+    end)
+    return list
 end
 
-function Beasts:AbilityRanks(name)
-    local ranks, seen = {}, {}
+-- Alle Raenge einer Faehigkeit: { { rank, lvl, tp, count } }; count = Tiere, die diesen Rang lehren
+function Beasts:AbilityRanks(key)
+    local d = AbilData()
+    local info, order = {}, {}
+    local a = d.byKey[key]
+    if a then
+        for _, r in ipairs(a.r) do
+            info[r[1]] = { rank = r[1], lvl = r[2], tp = r[3], count = 0 }
+            order[#order + 1] = r[1]
+        end
+    end
     for _, s in ipairs(self:Index()) do
-        local e = self:Abilities(s)[name]
+        local e = self:Abilities(s)[key]
         if e then
             for r in pairs(e.ranks) do
-                if r > 0 and not seen[r] then
-                    seen[r] = true
-                    ranks[#ranks + 1] = r
+                if r > 0 then
+                    if not info[r] then
+                        info[r] = { rank = r, count = 0 }
+                        order[#order + 1] = r
+                    end
+                    info[r].count = info[r].count + 1
                 end
             end
         end
     end
-    table.sort(ranks)
-    return ranks
+    table.sort(order)
+    local out = {}
+    for _, r in ipairs(order) do
+        out[#out + 1] = info[r]
+    end
+    return out
+end
+
+-- Tiere, die einen Rang beim Zaehmen lehren: erste max nach Stufe, dazu die Gesamtzahl
+function Beasts:Teachers(key, rank, max)
+    local list = {}
+    for _, s in ipairs(self:Index()) do
+        local e = self:Abilities(s)[key]
+        if e and e.ranks[rank] then
+            list[#list + 1] = s
+        end
+    end
+    local total = #list
+    table.sort(list, function(a, b)
+        local la, lb = a.lvl1 or 999, b.lvl1 or 999
+        if la ~= lb then
+            return la < lb
+        end
+        return a.sortName < b.sortName
+    end)
+    local out = {}
+    for i = 1, math.min(total, max or total) do
+        out[i] = list[i]
+    end
+    return out, total
 end
 
 -- Familien und Gebiete, die im Index vorkommen (fuer die Auswahllisten)

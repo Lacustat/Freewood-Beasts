@@ -1,6 +1,6 @@
 # Freewood-Beasts
 
-**Deutsch & English · German & English.** Autor · Author: Lacustat. Version 0.5.8 · Interface 16001 (World of Warcraft: Forever).
+**Deutsch & English · German & English.** Autor · Author: Lacustat. Version 0.6.0 · Interface 16001 (World of Warcraft: Forever).
 
 ![Beasts](https://github.com/Lacustat/Freewood-OctoWoW-Bilder/blob/main/beasts.jpg)
 
@@ -16,6 +16,8 @@ Das Archiv wilder Tiere: wo sie leben, was sie fressen, was das Zähmen lehrt. E
 ### Funktionen
 - Ein Tier anvisieren: „Gesehen“ mit Fundort; Wildtierkunde: „Erforscht“; gezähmt: „Gezähmt“ mit den Fähigkeiten, damit Jäger wissen, wo sie welchen Rang für ihren Begleiter finden.
 - Suche und Filter (Familie, Gebiet, Status), Kartenanzeige der Fundorte.
+- **Fähigkeiten-Filter**: Fähigkeit wählen, dann Rang (alle Ränge mit Stufe und Anzahl Tiere) oder „ab Rang“. Mit `Freewood-BeastsData` (Petopia) kennt er alle Ränge und jedes Tier, das sie lehrt.
+- **Tooltips** an jeder Fähigkeit: Zauberbeschreibung, Begleiterstufe, Trainingspunkte und lehrende Tiere. Klick zeigt die Tiere mit dieser Fähigkeit.
 - Export und Import; Austausch über Gilde, Gruppe und Schlachtzug, Daten anderer Spieler überschreiben nie deine eigenen.
 - Mit dem Brett lassen sich Wildtierdaten per Brief weitergeben (verschlüsselt, aber importierbar).
 
@@ -46,6 +48,8 @@ The archive of wild beasts: where they live, what they eat, what taming teaches.
 ### Features
 - Target a beast: “seen” with location; beast lore: “researched”; tamed: “tamed” with the abilities, so hunters know where to find which rank for their companion.
 - Search and filters (family, zone, status), map display of locations.
+- **Ability filter**: pick an ability, then a rank (every rank with level and number of beasts) or “rank and up”. With `Freewood-BeastsData` (Petopia) it knows every rank and each beast that teaches it.
+- **Tooltips** on every ability: spell text, pet level, training points and teaching beasts. Click lists the beasts with that ability.
 - Export and import; exchange via guild, party and raid, other players' data never overwrites your own.
 - With Brett, beast data can be passed on by letter (encoded, but importable).
 

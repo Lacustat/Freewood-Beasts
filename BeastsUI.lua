@@ -25,6 +25,7 @@ local FAMILY_ICON = {
     scorpid = "Ability_Hunter_Pet_Scorpid", spider = "Ability_Hunter_Pet_Spider",
     tallstrider = "Ability_Hunter_Pet_TallStrider", turtle = "Ability_Hunter_Pet_Turtle",
     windserpent = "Ability_Hunter_Pet_WindSerpent", wolf = "Ability_Hunter_Pet_Wolf",
+    fox = "Ability_Hunter_Pet_Fox", birdofprey = "Ability_Hunter_Pet_Owl", corehound = "Ability_Hunter_Pet_CoreHound",
 }
 
 local function FamilyIcon(fid)
@@ -104,6 +105,56 @@ local function SpellRank(spellID)
         end
     end
     return nil
+end
+
+-- Tooltip zu einer Faehigkeit (Rang optional): Spielzauber, wenn die ID bekannt ist, dazu Stufe, Punkte und lehrende Tiere
+local function ShowAbilityTooltip(owner, key, rank, withClick)
+    local L = FW.L
+    GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+    local spellID = rank and Beasts.AbilitySpellID(key, rank)
+    local shown = false
+    if spellID and GameTooltip.SetSpellByID then
+        shown = pcall(GameTooltip.SetSpellByID, GameTooltip, spellID) and (GameTooltip:NumLines() or 0) > 0
+    end
+    if not shown then
+        GameTooltip:ClearLines()
+        GameTooltip:AddLine(Beasts.AbilityName(key), 1, 0.82, 0.2)
+        if rank and rank > 0 then
+            GameTooltip:AddLine(string.format(L.BEAST_TIP_RANK, rank), 0.8, 0.8, 0.8)
+        end
+    else
+        GameTooltip:AddLine(" ")
+    end
+    if rank then
+        local info = Beasts.AbilityRankInfo(key, rank)
+        if info then
+            if info.lvl and info.lvl > 0 then
+                GameTooltip:AddLine(string.format(L.BEAST_TIP_LEVEL, info.lvl), 1, 1, 1)
+            end
+            if info.tp and info.tp > 0 then
+                GameTooltip:AddLine(string.format(L.BEAST_TIP_TP, info.tp), 1, 1, 1)
+            end
+        end
+        local list, total = Beasts:Teachers(key, rank, 8)
+        if total > 0 then
+            GameTooltip:AddLine(L.BEAST_TIP_LEARN, 0.9, 0.7, 0.3)
+            for _, s in ipairs(list) do
+                local lv = s.lvl1 and (" (" .. (s.lvl2 and s.lvl2 ~= s.lvl1 and (s.lvl1 .. "-" .. s.lvl2) or s.lvl1) .. ")") or ""
+                local zone = s.zone and ("  " .. s.zone) or ""
+                GameTooltip:AddLine(s.name .. lv .. zone, 0.85, 0.85, 0.85)
+            end
+            if total > #list then
+                GameTooltip:AddLine(string.format(L.BEAST_TIP_MORE, total - #list), 0.6, 0.6, 0.6)
+            end
+        else
+            GameTooltip:AddLine(L.BEAST_TIP_NONE, 0.6, 0.6, 0.6)
+        end
+    end
+    if withClick then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine(L.BEAST_TIP_CLICK, 0.5, 0.8, 0.5)
+    end
+    GameTooltip:Show()
 end
 
 ------------------------------------------------------------------------
@@ -396,7 +447,7 @@ local function NewStack(scroll)
     end
 
     -- Zeile: links Text, rechts Text oder Marke; optional klickbar
-    function s:Row(left, right, rightColor, onClick, selected)
+    function s:Row(left, right, rightColor, onClick, selected, tip)
         local row = take("row", function()
             local r = CreateFrame("Button", nil, self.child)
             r:SetHeight(26)
@@ -426,10 +477,16 @@ local function NewStack(scroll)
             r:SetScript("OnEnter", function()
                 r.hover = true
                 paint()
+                if r.tip then
+                    r.tip(r)
+                end
             end)
             r:SetScript("OnLeave", function()
                 r.hover = false
                 paint()
+                if r.tip then
+                    GameTooltip:Hide()
+                end
             end)
             r:SetScript("OnClick", function()
                 if r.onClick then
@@ -439,6 +496,7 @@ local function NewStack(scroll)
             return r
         end)
         row.onClick = onClick
+        row.tip = tip
         row.clickable = onClick ~= nil
         row.selected = selected and true or false
         row.left:SetText(left or "")
@@ -533,8 +591,8 @@ local function Build(content)
     local abilitySelect, rankSelect
     abilitySelect = CreateSelect(f, 186, function()
         local opts = { { key = false, text = FW.L.BEAST_ALL_ABILITIES } }
-        for _, name in ipairs(Beasts:AbilityChoices()) do
-            opts[#opts + 1] = { key = name, text = name }
+        for _, a in ipairs(Beasts:AbilityChoices()) do
+            opts[#opts + 1] = { key = a.key, text = a.text }
         end
         return opts
     end, function()
@@ -550,12 +608,21 @@ local function Build(content)
         local opts = { { key = false, text = FW.L.BEAST_ALL_RANKS } }
         if filter.ability then
             local ranks = Beasts:AbilityRanks(filter.ability)
+            local L = FW.L
             for _, r in ipairs(ranks) do
-                opts[#opts + 1] = { key = r, text = string.format(FW.L.BEAST_RANK_EXACT, r) }
+                local text
+                if r.lvl and r.count == 0 then
+                    text = string.format(L.BEAST_RANK_NOSRC, r.rank, r.lvl)
+                elseif r.lvl then
+                    text = string.format(L.BEAST_RANK_LINE, r.rank, r.lvl, r.count)
+                else
+                    text = string.format(L.BEAST_RANK_LINE_NOLVL, r.rank, r.count)
+                end
+                opts[#opts + 1] = { key = r.rank, text = text }
             end
             for i, r in ipairs(ranks) do
                 if i > 1 then
-                    opts[#opts + 1] = { key = -r, text = string.format(FW.L.BEAST_RANK_MIN, r) }
+                    opts[#opts + 1] = { key = -r.rank, text = string.format(L.BEAST_RANK_MIN, r.rank) }
                 end
             end
         end
@@ -798,18 +865,40 @@ local function Build(content)
         end
         stack:Gap(6)
 
-        -- Faehigkeiten durch Zaehmen (Startdaten)
-        if s.seed and s.seed.t and #s.seed.t > 0 then
+        -- Faehigkeiten, die dieses Tier beim Zaehmen lehrt (Petopia, Startdaten, eigene Funde)
+        local abil = Beasts:Abilities(s)
+        local keys = {}
+        for key in pairs(abil) do
+            keys[#keys + 1] = key
+        end
+        if #keys > 0 then
+            table.sort(keys, function(x, y)
+                return Beasts.AbilityName(x) < Beasts.AbilityName(y)
+            end)
             stack:Heading(L2.BEAST_TEACHES)
-            for _, spellID in ipairs(s.seed.t) do
-                local name, rank = Beasts.SpellInfo(spellID)
-                stack:Row(SpellName(spellID), SpellRank(spellID) or "", "goldLight", function()
-                    if name then
-                        filter.ability = name
-                        filter.rank, filter.rankMin = (rank and rank > 0) and rank or nil, false
-                        f.Refresh()
+            for _, key in ipairs(keys) do
+                local ranks = {}
+                for r in pairs(abil[key].ranks) do
+                    ranks[#ranks + 1] = r
+                end
+                table.sort(ranks)
+                for _, r in ipairs(ranks) do
+                    local info = r > 0 and Beasts.AbilityRankInfo(key, r)
+                    local right = ""
+                    if r > 0 then
+                        right = string.format(L2.BEAST_TIP_RANK, r)
+                        if info and info.lvl and info.lvl > 0 then
+                            right = right .. "  |  " .. string.format(L2.BEAST_ABIL_LEVEL, info.lvl)
+                        end
                     end
-                end)
+                    stack:Row(Beasts.AbilityName(key), right, "goldLight", function()
+                        filter.ability = key
+                        filter.rank, filter.rankMin = r > 0 and r or nil, false
+                        f.Refresh()
+                    end, false, function(owner)
+                        ShowAbilityTooltip(owner, key, r > 0 and r or nil, true)
+                    end)
+                end
             end
             stack:Gap(6)
         end
@@ -823,13 +912,17 @@ local function Build(content)
                 if a.passive then
                     right = (right ~= "" and (right .. "  |  ") or "") .. L2.BEAST_PASSIVE
                 end
+                local akey = a.name and Beasts.KeyForName(a.name)
+                local arank = tonumber(a.rank) and tonumber(a.rank) > 0 and tonumber(a.rank) or nil
                 stack:Row(a.name, right, "goldLight", function()
-                    if a.name then
-                        filter.ability = a.name
-                        filter.rank, filter.rankMin = (tonumber(a.rank) and tonumber(a.rank) > 0) and tonumber(a.rank) or nil, false
+                    if akey then
+                        filter.ability = akey
+                        filter.rank, filter.rankMin = arank, false
                         f.Refresh()
                     end
-                end)
+                end, false, akey and function(owner)
+                    ShowAbilityTooltip(owner, akey, arank, true)
+                end or nil)
             end
             stack:Gap(6)
         end
@@ -948,7 +1041,7 @@ local function Build(content)
         else
             countLabel:SetText(string.format(L2.BEAST_COUNT, #list, total))
         end
-        abilitySelect:SetLabel(filter.ability or L2.BEAST_ALL_ABILITIES)
+        abilitySelect:SetLabel(filter.ability and Beasts.AbilityName(filter.ability) or L2.BEAST_ALL_ABILITIES)
         local rankText = L2.BEAST_ALL_RANKS
         if filter.rank then
             rankText = string.format(filter.rankMin and L2.BEAST_RANK_MIN or L2.BEAST_RANK_EXACT, filter.rank)
