@@ -717,7 +717,7 @@ local function Build(content)
 
     local hint = UI.CreateLabel(f, L.BEAST_SELECT, { size = 12, color = "textDim", justifyV = "TOP" })
     hint:SetPoint("TOPLEFT", f, "TOPLEFT", LIST_W + 22, -4)
-    hint:SetPoint("TOPRIGHT", f, "TOPRIGHT", 0, -4)
+    hint:SetPoint("TOPRIGHT", f, "TOPRIGHT", -130, -4)   -- Platz fuer den Knopf "Einstellungen" (Core 0.54.0)
     hint:SetWordWrap(true)
 
     -- Bild: 3D-Modell des Tiers (aus der NPC-Nummer), solange es nicht laedt das Familien-Symbol
@@ -762,7 +762,7 @@ local function Build(content)
     mapButton:SetPoint("TOPLEFT", detail, "TOPLEFT", 76, -46)
 
     local stateChip = UI.CreateChip(detail, "", "success")
-    stateChip:SetPoint("TOPRIGHT", detail, "TOPRIGHT", 0, -4)
+    stateChip:SetPoint("TOPRIGHT", detail, "TOPRIGHT", -130, -4)   -- Platz fuer den Knopf "Einstellungen" (Core 0.54.0)
     local sourceChip = UI.CreateChip(detail, "", "textDim")
     sourceChip:SetPoint("RIGHT", stateChip, "LEFT", -6, 0)
 
