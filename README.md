@@ -1,6 +1,6 @@
 # Freewood-Beasts
 
-**Deutsch & English · German & English.** Autor · Author: Lacustat. Version 0.6.3 · Interface 16001 (World of Warcraft: Forever).
+**Deutsch & English · German & English.** Autor · Author: Lacustat. Version 0.7.0 · Interface 16001 (World of Warcraft: Forever).
 
 ![Beasts](https://github.com/Lacustat/Freewood-OctoWoW-Bilder/blob/main/beasts.jpg)
 
@@ -15,6 +15,7 @@
 Das Archiv wilder Tiere: wo sie leben, was sie fressen, was das Zähmen lehrt. Es lernt beim Spielen, mit Export, Import und Teilen.
 
 ### Funktionen
+- Ab 0.7.0: Erklärungen als goldenes „i“ aus dem Core (braucht Core 0.58.0): Fenster „Personen“ hinter dem Titel (die Liste rückt hoch), Hinweis zum Teilen hinter der Überschrift der Einstellungen. Der Hinweis über dem Koordinatenfeld bleibt (Strg+C). Im Spiel ungeprüft.
 - Ab 0.6.3: Die Einstellungen (Teilen) stehen im Reiter Wildtiere hinter dem Knopf „Einstellungen“ oben rechts (braucht Core 0.55.0, sonst wie bisher im Reiter Einstellungen). Hinweistext und Status-Chip rechts oben rücken dafür nach links. Im Spiel ungeprüft.
 - Ein Tier anvisieren: „Gesehen“ mit Fundort; Wildtierkunde: „Erforscht“; gezähmt: „Gezähmt“ mit den Fähigkeiten, damit Jäger wissen, wo sie welchen Rang für ihren Begleiter finden.
 - Suche und Filter (Familie, Gebiet, Status), Kartenanzeige der Fundorte.
@@ -48,6 +49,7 @@ GPL-3.0, siehe `LICENSE`.
 The archive of wild beasts: where they live, what they eat, what taming teaches. It learns while you play, with export, import and sharing.
 
 ### Features
+- Since 0.7.0: explanations as the golden "i" from the Core (needs Core 0.58.0): "People" window behind the title (the list moves up), sharing note behind the settings heading. The hint above the coordinates box stays (Ctrl+C). Not verified in game.
 - Since 0.6.3: the settings (sharing) are in the Beasts tab behind the "Settings" button at the top right (needs Core 0.55.0, otherwise in the Settings tab as before). The hint text and status chip at the top right move left to make room. Not verified in game.
 - Target a beast: “seen” with location; beast lore: “researched”; tamed: “tamed” with the abilities, so hunters know where to find which rank for their companion.
 - Search and filters (family, zone, status), map display of locations.

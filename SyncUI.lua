@@ -44,16 +44,13 @@ local function BuildPanel()
     divider:SetPoint("TOPLEFT", p, "TOPLEFT", 16, -44)
     divider:SetPoint("TOPRIGHT", p, "TOPRIGHT", -16, -44)
 
-    local note = UI.CreateLabel(p, L.BEAST_PEOPLE_NOTE, { size = 11, color = "textDim", justifyV = "TOP" })
-    note:SetPoint("TOPLEFT", p, "TOPLEFT", 16, -52)
-    note:SetPoint("TOPRIGHT", p, "TOPRIGHT", -16, -52)
-    note:SetHeight(46)
-    note:SetWordWrap(true)
+    -- Erklaerung als goldenes "i" hinter dem Titel (0.7.0)
+    if UI.CreateInfoIcon then UI.CreateInfoIcon(p, L.BEAST_PEOPLE_TITLE, L.BEAST_PEOPLE_NOTE):SetPoint("LEFT", title, "RIGHT", 6, 0) end
 
     -- Liste
     local scroll = UI.CreateScrollFrame(p)
-    scroll:SetPoint("TOPLEFT", p, "TOPLEFT", 16, -104)
-    scroll:SetPoint("TOPRIGHT", p, "TOPRIGHT", -16, -104)
+    scroll:SetPoint("TOPLEFT", p, "TOPLEFT", 16, -56)
+    scroll:SetPoint("TOPRIGHT", p, "TOPRIGHT", -16, -56)
     scroll:SetHeight(150)
 
     local emptyLabel = UI.CreateLabel(scroll.child, L.BEAST_PEOPLE_EMPTY, { size = 12, color = "textDim", justifyV = "TOP" })
@@ -238,8 +235,7 @@ local function Build(parent)
     local L = FW.L
     local f, stack = UI.CreateSection(parent, L.BEAST_SHARE_HEADER)
 
-    local note = UI.CreateLabel(f, L.BEAST_SHARE_NOTE, { size = 11, color = "textDim", justifyV = "TOP" })
-    stack:Add(note, { fit = true, gap = 8 })
+    if f.AddInfo then f:AddInfo(L.BEAST_SHARE_NOTE) end
 
     local boxes = {}
     for i, row in ipairs(ROWS) do
